@@ -24,6 +24,37 @@ print_step() {
     echo -e "${BLUE}[STEP]${NC} $1"
 }
 
+# 检查 Git 是否安装
+check_git() {
+    if ! command -v git &> /dev/null; then
+        print_error "Git 未安装，请先安装 Git"
+        print_message "安装方法："
+        print_message "1. macOS: brew install git"
+        print_message "2. Ubuntu: sudo apt-get install git"
+        print_message "3. Windows: 下载 Git for Windows"
+        exit 1
+    fi
+}
+
+# 检查是否在 Git 仓库中
+check_git_repo() {
+    if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        print_error "当前目录不是 Git 仓库"
+        print_message "请确保在正确的项目目录中运行此脚本"
+        exit 1
+    fi
+}
+
+# 检查远程仓库配置
+check_remote() {
+    if ! git remote get-url origin &> /dev/null; then
+        print_error "未配置远程仓库"
+        print_message "请先配置远程仓库："
+        print_message "git remote add origin <repository-url>"
+        exit 1
+    fi
+}
+
 # 检查是否有未提交的更改
 check_changes() {
     print_step "检查工作区状态..."
@@ -40,15 +71,20 @@ check_changes() {
 add_changes() {
     print_step "准备添加更改到暂存区..."
     git add .
-    print_message "所有更改已添加到暂存区"
+    if [ $? -eq 0 ]; then
+        print_message "所有更改已添加到暂存区"
+    else
+        print_error "添加更改失败"
+        exit 1
+    fi
 }
 
 # 提交更改
 commit_changes() {
     if [ -z "$1" ]; then
         print_error "提交信息不能为空"
-        print_message "使用方法: ./git-commit.sh \"提交信息\""
-        print_message "例如: ./git-commit.sh \"feat(user): 添加用户管理功能\""
+        print_message "使用方法: npm run git-commit -- \"提交信息\""
+        print_message "例如: npm run git-commit -- \"feat(user): 添加用户管理功能\""
         exit 1
     fi
     
@@ -81,12 +117,21 @@ push_changes() {
     if [ $? -eq 0 ]; then
         print_message "推送成功！"
     else
-        print_error "推送失败，请检查网络连接或仓库权限"
-        print_message "常见问题解决方案："
+        print_error "推送失败，请检查以下可能的问题："
+        print_message "1. 网络连接是否正常"
+        print_message "2. GitHub 是否可访问"
+        print_message "3. 仓库权限是否正确"
+        print_message "4. 是否配置了 SSH 密钥"
+        print_message "5. 是否使用了正确的远程仓库地址"
+        print_message ""
+        print_message "解决方案："
         print_message "1. 检查网络连接"
         print_message "2. 确认 GitHub 是否可访问"
         print_message "3. 检查仓库权限"
-        print_message "4. 尝试使用 SSH 方式连接"
+        print_message "4. 尝试使用 SSH 方式连接："
+        print_message "   git remote set-url origin git@github.com:liangbule/admin-dashboard.git"
+        print_message "5. 使用个人访问令牌："
+        print_message "   git remote set-url origin https://<token>@github.com/liangbule/admin-dashboard.git"
         exit 1
     fi
 }
@@ -95,11 +140,16 @@ push_changes() {
 main() {
     print_step "开始代码提交流程..."
     
+    # 检查 Git 环境
+    check_git
+    check_git_repo
+    check_remote
+    
     # 检查参数
     if [ $# -eq 0 ]; then
         print_error "缺少提交信息参数"
-        print_message "使用方法: ./git-commit.sh \"提交信息\""
-        print_message "例如: ./git-commit.sh \"feat(user): 添加用户管理功能\""
+        print_message "使用方法: npm run git-commit -- \"提交信息\""
+        print_message "例如: npm run git-commit -- \"feat(user): 添加用户管理功能\""
         exit 1
     fi
 
