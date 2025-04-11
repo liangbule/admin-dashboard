@@ -1,50 +1,32 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, Modal, message, Tag } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, Table, Button, Space, Tag, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
 interface TagItem {
   id: string;
   name: string;
   color: string;
-  description: string;
 }
 
 const TagList: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [data, setData] = useState<TagItem[]>([
     {
       id: '1',
-      name: '示例标签1',
-      color: '#f50',
-      description: '这是一个示例标签',
+      name: '测试标签1',
+      color: '#1890ff',
     },
     {
       id: '2',
-      name: '示例标签2',
-      color: '#2db7f5',
-      description: '这是另一个示例标签',
+      name: '测试标签2',
+      color: '#52c41a',
     },
   ]);
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: '确认删除',
-      content: '确定要删除这个标签吗？',
-      onOk: () => {
-        setData(data.filter(item => item.id !== id));
-        message.success('删除成功');
-      },
-    });
-  };
-
-  // 处理导航
-  const handleNavigate = (path: string) => {
-    if (location.pathname === path) {
-      return;
-    }
-    navigate(path, { replace: true });
+    setData(data.filter(item => item.id !== id));
+    message.success('删除成功');
   };
 
   const columns = [
@@ -52,24 +34,32 @@ const TagList: React.FC = () => {
       title: '标签名称',
       dataIndex: 'name',
       key: 'name',
-      render: (name: string, record: TagItem) => (
-        <Tag color={record.color}>{name}</Tag>
+      render: (text: string, record: TagItem) => (
+        <Tag color={record.color}>{text}</Tag>
       ),
     },
     {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
+      title: '颜色',
+      dataIndex: 'color',
+      key: 'color',
+      render: (color: string) => (
+        <div style={{ 
+          width: 20, 
+          height: 20, 
+          backgroundColor: color,
+          borderRadius: '50%'
+        }} />
+      ),
     },
     {
       title: '操作',
       key: 'action',
-      render: (_: unknown, record: TagItem) => (
-        <Space size="middle">
+      render: (_: any, record: TagItem) => (
+        <Space>
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => handleNavigate(`/tag/edit/${record.id}`)}
+            onClick={() => navigate(`/tag/${record.id}/edit`)}
           >
             编辑
           </Button>
@@ -87,28 +77,24 @@ const TagList: React.FC = () => {
   ];
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
+    <Card 
+      title="标签管理"
+      extra={
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => handleNavigate('/tag/edit')}
+          onClick={() => navigate('/tag/create')}
         >
-          添加标签
+          创建标签
         </Button>
-      </div>
+      }
+    >
       <Table
         columns={columns}
         dataSource={data}
         rowKey="id"
-        pagination={{
-          total: data.length,
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
       />
-    </div>
+    </Card>
   );
 };
 

@@ -2,12 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   token: string | null;
-  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
-  token: null,
-  isAuthenticated: false,
+  token: localStorage.getItem('admin_token'),
 };
 
 const authSlice = createSlice({
@@ -16,11 +14,11 @@ const authSlice = createSlice({
   reducers: {
     setToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
-      state.isAuthenticated = true;
+      localStorage.setItem('admin_token', action.payload);
     },
     clearToken: (state) => {
       state.token = null;
-      state.isAuthenticated = false;
+      localStorage.removeItem('admin_token');
     },
   },
 });

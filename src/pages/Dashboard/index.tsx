@@ -1,63 +1,98 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Typography } from 'antd';
+import { Card, Row, Col, Statistic } from 'antd';
+import { Line } from '@ant-design/plots';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-
-const { Title } = Typography;
+import './index.less';
 
 const Dashboard: React.FC = () => {
+  // 模拟数据
+  const data = [
+    { date: '2024-01', value: 100 },
+    { date: '2024-02', value: 120 },
+    { date: '2024-03', value: 150 },
+    { date: '2024-04', value: 200 },
+    { date: '2024-05', value: 180 },
+    { date: '2024-06', value: 220 },
+  ];
+
+  const config = {
+    data,
+    xField: 'date',
+    yField: 'value',
+    point: {
+      size: 5,
+      shape: 'diamond',
+    },
+    label: {
+      style: {
+        fill: '#aaa',
+      },
+    },
+    smooth: true,
+    lineStyle: {
+      stroke: '#1890ff',
+      lineWidth: 2,
+    },
+    areaStyle: {
+      fill: 'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff',
+    },
+  };
+
   return (
-    <div style={{ padding: '24px' }}>
-      <Title level={2} style={{ marginBottom: '24px' }}>数据概览</Title>
+    <div className="dashboard-container">
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={12} lg={6}>
-          <Card hoverable>
+        <Col span={6}>
+          <Card>
             <Statistic
-              title="总访问量"
+              title="总用户数"
               value={1128}
               precision={0}
               valueStyle={{ color: '#3f8600' }}
               prefix={<ArrowUpOutlined />}
-              suffix="次"
+              suffix="人"
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={6}>
-          <Card hoverable>
+        <Col span={6}>
+          <Card>
             <Statistic
               title="今日访问"
               value={93}
               precision={0}
-              valueStyle={{ color: '#3f8600' }}
-              prefix={<ArrowUpOutlined />}
+              valueStyle={{ color: '#cf1322' }}
+              prefix={<ArrowDownOutlined />}
               suffix="次"
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={6}>
-          <Card hoverable>
+        <Col span={6}>
+          <Card>
             <Statistic
-              title="Banner数量"
-              value={12}
-              precision={0}
-              valueStyle={{ color: '#cf1322' }}
-              prefix={<ArrowDownOutlined />}
-              suffix="个"
+              title="转化率"
+              value={12.5}
+              precision={1}
+              valueStyle={{ color: '#3f8600' }}
+              prefix={<ArrowUpOutlined />}
+              suffix="%"
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={6}>
-          <Card hoverable>
+        <Col span={6}>
+          <Card>
             <Statistic
-              title="标签数量"
-              value={8}
-              precision={0}
-              valueStyle={{ color: '#cf1322' }}
-              prefix={<ArrowDownOutlined />}
-              suffix="个"
+              title="平均停留"
+              value={8.9}
+              precision={1}
+              valueStyle={{ color: '#3f8600' }}
+              prefix={<ArrowUpOutlined />}
+              suffix="分钟"
             />
           </Card>
         </Col>
       </Row>
+      <Card style={{ marginTop: 16 }} title="访问趋势">
+        <Line {...config} />
+      </Card>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setToken } from '@/store/slices/authSlice';
+import { userApi } from '@/services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -13,20 +14,26 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
       setLoading(true);
-      // 这里应该是实际的登录 API 调用
-      console.log('登录信息:', values);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log('开始登录，参数：', values);
       
-      // 模拟登录成功
-      const token = 'mock-token';
-      dispatch(setToken(token));
-      localStorage.setItem('admin_token', token);
+      const response = await userApi.login(values);
+      console.log('登录响应：', response);
       
-      message.success('登录成功');
-      navigate('/', { replace: true });
-    } catch (err) {
+      if (response && response.access_token) {
+        dispatch(setToken(response.access_token));
+        localStorage.setItem('admin_token', response.access_token);
+        
+        localStorage.setItem('userInfo', JSON.stringify(response.user));
+        
+        message.success('登录成功');
+        navigate('/', { replace: true });
+      } else {
+        throw new Error('登录失败：未获取到token');
+      }
+    } catch (err: unknown) {
       console.error('登录失败:', err);
-      message.error('登录失败');
+      const errorMessage = err instanceof Error ? err.message : '登录失败，请检查用户名和密码';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }

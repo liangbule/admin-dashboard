@@ -1,30 +1,146 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { routes } from './routes';
-import { logger, LogType } from '@/utils/logger';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAppSelector } from '@/store/hooks';
+import MainLayout from '@/layouts/MainLayout';
+import AuthLayout from '@/layouts/AuthLayout';
+import Login from '@/pages/Login';
+import Dashboard from '@/pages/Dashboard';
+import UserList from '@/pages/User/List';
+import UserForm from '@/pages/User/Form';
+import BannerList from '@/pages/Banner/List';
+import BannerForm from '@/pages/Banner/Form';
+import TabList from '@/pages/Tab/List';
+import TabForm from '@/pages/Tab/Form';
+import TagList from '@/pages/Tag/List';
+import TagForm from '@/pages/Tag/Form';
+import FileList from '@/pages/File/List';
+import System from '@/pages/System';
 
-// 路由守卫
-export const onRouteBefore = (path: string) => {
-  logger.info(LogType.SYSTEM, '路由跳转', { path });
-  
-  // 如果是登录页，直接放行
-  if (path === '/login') {
-    return true;
-  }
+interface PrivateRouteProps {
+  children: React.ReactNode;
+}
 
-  // 检查是否已登录
-  const token = localStorage.getItem('token');
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
+  const location = useLocation();
+  const token = useAppSelector((state) => state.auth.token) || localStorage.getItem('admin_token');
+
   if (!token) {
-    logger.warn(LogType.AUTH, '未登录，跳转到登录页');
-    return '/login';
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return true;
+  return <>{children}</>;
 };
 
-const router = createBrowserRouter(routes);
+const routes = [
+  {
+    path: '/',
+    element: (
+      <PrivateRoute>
+        <MainLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        path: '',
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
+      },
+      {
+        path: 'users',
+        children: [
+          {
+            path: '',
+            element: <UserList />,
+          },
+          {
+            path: 'create',
+            element: <UserForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <UserForm />,
+          },
+        ],
+      },
+      {
+        path: 'banner',
+        children: [
+          {
+            path: '',
+            element: <BannerList />,
+          },
+          {
+            path: 'create',
+            element: <BannerForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <BannerForm />,
+          },
+        ],
+      },
+      {
+        path: 'tab',
+        children: [
+          {
+            path: '',
+            element: <TabList />,
+          },
+          {
+            path: 'create',
+            element: <TabForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <TabForm />,
+          },
+        ],
+      },
+      {
+        path: 'tag',
+        children: [
+          {
+            path: '',
+            element: <TagList />,
+          },
+          {
+            path: 'create',
+            element: <TagForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <TagForm />,
+          },
+        ],
+      },
+      {
+        path: 'file',
+        children: [
+          {
+            path: '',
+            element: <FileList />,
+          },
+        ],
+      },
+      {
+        path: 'system',
+        element: <System />,
+      },
+    ],
+  },
+  {
+    path: '/login',
+    element: <AuthLayout />,
+    children: [
+      {
+        path: '',
+        element: <Login />,
+      },
+    ],
+  },
+];
 
-const Router = () => {
-  return <RouterProvider router={router} fallbackElement={<div>Loading...</div>} />;
-};
-
-export default Router; 
+export default routes; 
