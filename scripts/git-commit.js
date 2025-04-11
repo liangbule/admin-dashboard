@@ -320,8 +320,11 @@ async function main() {
   // 提交更改到本地
   commitChanges(commitMessage);
 
-  printMessage('本地提交完成！');
-  printMessage('如果要推送到远程仓库，请使用 git push 命令');
+  // 推送到远程仓库
+  await pushChanges();
+
+  printMessage('代码提交流程完成！');
+  printMessage('可以在 GitHub 上查看提交记录');
 }
 
 // 执行主函数
