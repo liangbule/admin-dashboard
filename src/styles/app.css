@@ -1,0 +1,168 @@
+@import './variables.css';
+@import './reset.css';
+
+/* 布局 */
+.layout {
+  min-height: 100vh;
+}
+
+/* 内容区域 */
+.content {
+  margin: var(--padding-lg);
+  padding: var(--padding-lg);
+  background: #fff;
+  min-height: 280px;
+}
+
+/* 卡片 */
+.card {
+  padding: var(--padding-lg);
+  background: #fff;
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--box-shadow);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .content {
+    margin: var(--padding-sm);
+    padding: var(--padding-sm);
+  }
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --primary-color: #1890ff;
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --error-color: #f5222d;
+  --text-color: rgba(0, 0, 0, 0.85);
+  --border-color: #d9d9d9;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#root {
+  margin: 0;
+  text-align: left;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-layout-content {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.ant-layout-sider {
+  background: #001529;
+}
+
+.ant-layout-header {
+  background: #fff;
+  padding: 0;
+  height: 64px;
+  line-height: 64px;
+}
+
+.ant-menu {
+  height: 100%;
+  border-right: 0;
+}
+
+.ant-layout-sider-trigger {
+  background: #002140;
+}
+
+/* 内容区域样式 */
+.ant-layout-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+  }
+
+  .ant-layout-content {
+    margin-left: 0;
+  }
+} 

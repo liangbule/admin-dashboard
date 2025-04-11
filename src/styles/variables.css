@@ -1,0 +1,36 @@
+:root {
+  /* 颜色 */
+  --primary-color: #1890ff;
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --error-color: #f5222d;
+  --text-color: rgba(0, 0, 0, 0.85);
+  --text-color-secondary: rgba(0, 0, 0, 0.45);
+  --disabled-color: rgba(0, 0, 0, 0.25);
+  --border-color: #d9d9d9;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  /* 字体 */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-sm: 12px;
+
+  /* 间距 */
+  --padding-lg: 24px;
+  --padding-md: 16px;
+  --padding-sm: 12px;
+  --padding-xs: 8px;
+  --padding-xss: 4px;
+
+  /* 圆角 */
+  --border-radius-base: 4px;
+  --border-radius-sm: 2px;
+
+  /* 动画 */
+  --animation-duration-base: 0.2s;
+  --animation-duration-slow: 0.3s;
+  --animation-duration-fast: 0.1s;
+} 
