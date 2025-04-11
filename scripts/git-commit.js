@@ -37,11 +37,8 @@ function execGitCommand(command, options = {}) {
     const result = execSync(command, { stdio: 'inherit', ...options });
     return result;
   } catch (error) {
-    if (error.status === 0) {
-      return true; // 命令执行成功但无输出
-    }
     console.error(error);
-    return null;
+    throw error; // 抛出错误而不是返回 null
   }
 }
 
@@ -252,31 +249,29 @@ async function pushChanges() {
       if (retryCount < MAX_RETRIES) {
         printWarning('推送失败，准备重试...');
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      } else {
+        printError('推送失败，请检查以下可能的问题：');
+        printMessage('1. 网络连接是否正常');
+        printMessage('2. GitHub 是否可访问');
+        printMessage('3. 仓库权限是否正确');
+        printMessage('4. 是否配置了 SSH 密钥');
+        printMessage('5. 是否使用了正确的远程仓库地址');
+        printMessage('');
+        printMessage('解决方案：');
+        printMessage('1. 检查网络连接');
+        printMessage('2. 确认 GitHub 是否可访问');
+        printMessage('3. 检查仓库权限');
+        printMessage('4. 尝试使用 SSH 方式连接：');
+        printMessage('   git remote set-url origin git@github.com:liangbule/admin-dashboard.git');
+        printMessage('5. 使用个人访问令牌：');
+        printMessage('   git remote set-url origin https://<token>@github.com/liangbule/admin-dashboard.git');
+        printMessage('6. 配置 Git 使用 HTTP/1.1：');
+        printMessage('   git config --global http.version HTTP/1.1');
+        printMessage('7. 配置 Git 凭证助手：');
+        printMessage('   git config --global credential.helper wincred');
+        process.exit(1);
       }
     }
-  }
-  
-  if (!success) {
-    printError('推送失败，请检查以下可能的问题：');
-    printMessage('1. 网络连接是否正常');
-    printMessage('2. GitHub 是否可访问');
-    printMessage('3. 仓库权限是否正确');
-    printMessage('4. 是否配置了 SSH 密钥');
-    printMessage('5. 是否使用了正确的远程仓库地址');
-    printMessage('');
-    printMessage('解决方案：');
-    printMessage('1. 检查网络连接');
-    printMessage('2. 确认 GitHub 是否可访问');
-    printMessage('3. 检查仓库权限');
-    printMessage('4. 尝试使用 SSH 方式连接：');
-    printMessage('   git remote set-url origin git@github.com:liangbule/admin-dashboard.git');
-    printMessage('5. 使用个人访问令牌：');
-    printMessage('   git remote set-url origin https://<token>@github.com/liangbule/admin-dashboard.git');
-    printMessage('6. 配置 Git 使用 HTTP/1.1：');
-    printMessage('   git config --global http.version HTTP/1.1');
-    printMessage('7. 配置 Git 凭证助手：');
-    printMessage('   git config --global credential.helper wincred');
-    process.exit(1);
   }
 }
 
