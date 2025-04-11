@@ -244,12 +244,9 @@ async function pushChanges() {
     
     try {
       // 使用 --no-verify 选项跳过 pre-push 钩子
-      if (execGitCommand('git push --no-verify')) {
-        success = true;
-        printMessage('推送成功！');
-      } else {
-        throw new Error('推送失败');
-      }
+      execGitCommand('git push --no-verify');
+      success = true;
+      printMessage('推送成功！');
     } catch (error) {
       retryCount++;
       if (retryCount < MAX_RETRIES) {
@@ -279,9 +276,6 @@ async function pushChanges() {
     printMessage('   git config --global http.version HTTP/1.1');
     printMessage('7. 配置 Git 凭证助手：');
     printMessage('   git config --global credential.helper wincred');
-    printMessage('8. 检查代理设置：');
-    printMessage('   git config --global http.proxy http://proxy.example.com:8080');
-    printMessage('   git config --global https.proxy https://proxy.example.com:8080');
     process.exit(1);
   }
 }
