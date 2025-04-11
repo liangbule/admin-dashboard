@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, theme, Dropdown, Space, Avatar } from 'antd';
+import { Layout, Menu, theme, Dropdown, Space, Avatar, Image } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearToken } from '@/store/slices/authSlice';
@@ -16,6 +16,8 @@ import {
   PictureOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import logo from '@/assets/logo.svg';
+import './MainLayout.less';
 
 const { Header, Sider, Content } = Layout;
 
@@ -83,8 +85,20 @@ const MainLayout: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical" />
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed}
+        className="main-sider"
+      >
+        <div className="logo-container">
+          <Image 
+            src={logo} 
+            preview={false}
+            className="logo"
+          />
+          {!collapsed && <span className="logo-text">管理后台</span>}
+        </div>
         <Menu
           theme="dark"
           mode="inline"
@@ -94,7 +108,7 @@ const MainLayout: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header style={{ padding: 0, background: colorBgContainer }} className="main-header">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 16px' }}>
             {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
               className: 'trigger',
