@@ -213,3 +213,65 @@ const authSlice = createSlice({
    - 添加单元测试
    - 完善错误处理
    - 优化开发工具链
+
+## 开发环境
+
+- Node.js >= 16
+- npm >= 7 或 yarn >= 1.22
+
+## 安装依赖
+
+```bash
+# 使用 npm
+npm install
+
+# 或使用 yarn
+yarn
+```
+
+## 开发命令
+
+```bash
+# 启动开发服务器
+npm run dev
+# 或
+yarn dev
+
+# 构建生产版本
+npm run build
+# 或
+yarn build
+
+# 预览生产版本
+npm run preview
+# 或
+yarn preview
+
+# 代码检查
+npm run lint
+# 或
+yarn lint
+```
+
+## 代码提交
+
+项目提供了便捷的代码提交脚本，使用方法：
+
+```bash
+# 使用 npm
+npm run git-commit -- "你的提交信息"
+
+# 或使用 yarn
+yarn git-commit "你的提交信息"
+```
+
+例如：
+```bash
+yarn git-commit "更新用户管理功能"
+```
+
+脚本会自动完成以下操作：
+1. 检查是否有未提交的更改
+2. 添加所有更改到暂存区
+3. 使用提供的提交信息进行提交
+4. 推送到远程仓库
