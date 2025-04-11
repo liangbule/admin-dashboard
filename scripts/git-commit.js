@@ -191,6 +191,25 @@ function commitChanges(message) {
   }
 }
 
+// 检查网络连接
+function checkNetwork() {
+  printStep('检查网络连接...');
+  try {
+    const result = execGitCommand('ping -n 1 github.com', { stdio: 'pipe' });
+    if (!result) {
+      printWarning('无法连接到 GitHub，请检查网络连接');
+      printMessage('1. 检查网络连接是否正常');
+      printMessage('2. 检查是否可以使用代理');
+      printMessage('3. 尝试使用其他网络');
+      return false;
+    }
+    return true;
+  } catch (error) {
+    printWarning('网络检查失败');
+    return false;
+  }
+}
+
 // 推送到远程仓库（带重试机制）
 async function pushChanges() {
   printStep('准备推送到远程仓库...');
@@ -202,7 +221,25 @@ async function pushChanges() {
   while (retryCount < MAX_RETRIES && !success) {
     if (retryCount > 0) {
       printWarning(`第 ${retryCount} 次重试推送...`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      
+      // 检查网络连接
+      if (!checkNetwork()) {
+        printMessage('等待网络恢复...');
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+        continue;
+      }
+      
+      // 尝试使用不同的协议
+      const currentUrl = execGitCommand('git remote get-url origin', { stdio: 'pipe' })?.toString().trim();
+      if (currentUrl) {
+        if (currentUrl.startsWith('https://')) {
+          printMessage('切换到 SSH 协议...');
+          execGitCommand('git remote set-url origin git@github.com:liangbule/admin-dashboard.git');
+        } else {
+          printMessage('切换到 HTTPS 协议...');
+          execGitCommand('git remote set-url origin https://github.com/liangbule/admin-dashboard.git');
+        }
+      }
     }
     
     try {
@@ -217,21 +254,7 @@ async function pushChanges() {
       retryCount++;
       if (retryCount < MAX_RETRIES) {
         printWarning('推送失败，准备重试...');
-        printMessage('尝试使用备用协议...');
-        
-        // 获取当前远程仓库 URL
-        const currentUrl = execGitCommand('git remote get-url origin', { stdio: 'pipe' })?.toString().trim();
-        
-        if (currentUrl) {
-          // 尝试切换协议
-          if (currentUrl.startsWith('https://')) {
-            printMessage('切换到 SSH 协议...');
-            execGitCommand('git remote set-url origin git@github.com:liangbule/admin-dashboard.git');
-          } else {
-            printMessage('切换到 HTTPS 协议...');
-            execGitCommand('git remote set-url origin https://github.com/liangbule/admin-dashboard.git');
-          }
-        }
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
       }
     }
   }
@@ -256,6 +279,9 @@ async function pushChanges() {
     printMessage('   git config --global http.version HTTP/1.1');
     printMessage('7. 配置 Git 凭证助手：');
     printMessage('   git config --global credential.helper wincred');
+    printMessage('8. 检查代理设置：');
+    printMessage('   git config --global http.proxy http://proxy.example.com:8080');
+    printMessage('   git config --global https.proxy https://proxy.example.com:8080');
     process.exit(1);
   }
 }
