@@ -7,6 +7,11 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# 最大重试次数
+MAX_RETRIES=3
+# 重试间隔（秒）
+RETRY_DELAY=5
+
 # 打印带颜色的消息
 print_message() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -22,6 +27,21 @@ print_warning() {
 
 print_step() {
     echo -e "${BLUE}[STEP]${NC} $1"
+}
+
+# 检查网络连接
+check_network() {
+    print_step "检查网络连接..."
+    if ! ping -c 1 github.com &> /dev/null; then
+        print_error "无法连接到 GitHub"
+        print_message "请检查网络连接或尝试以下方法："
+        print_message "1. 检查网络设置"
+        print_message "2. 尝试使用代理"
+        print_message "3. 使用其他网络"
+        return 1
+    fi
+    print_message "网络连接正常"
+    return 0
 }
 
 # 检查 Git 是否安装
@@ -107,16 +127,44 @@ commit_changes() {
     fi
 }
 
-# 推送到远程仓库
+# 推送到远程仓库（带重试机制）
 push_changes() {
     print_step "准备推送到远程仓库..."
     print_message "正在推送更改到 origin/master..."
     
-    git push
+    local retry_count=0
+    local success=0
     
-    if [ $? -eq 0 ]; then
-        print_message "推送成功！"
-    else
+    while [ $retry_count -lt $MAX_RETRIES ] && [ $success -eq 0 ]; do
+        if [ $retry_count -gt 0 ]; then
+            print_warning "第 $retry_count 次重试推送..."
+            sleep $RETRY_DELAY
+        fi
+        
+        git push
+        
+        if [ $? -eq 0 ]; then
+            success=1
+            print_message "推送成功！"
+        else
+            retry_count=$((retry_count + 1))
+            if [ $retry_count -lt $MAX_RETRIES ]; then
+                print_warning "推送失败，准备重试..."
+                print_message "尝试使用备用协议..."
+                
+                # 尝试使用 SSH 协议
+                if [[ "$(git remote get-url origin)" == https://* ]]; then
+                    print_message "切换到 SSH 协议..."
+                    git remote set-url origin git@github.com:liangbule/admin-dashboard.git
+                else
+                    print_message "切换到 HTTPS 协议..."
+                    git remote set-url origin https://github.com/liangbule/admin-dashboard.git
+                fi
+            fi
+        fi
+    done
+    
+    if [ $success -eq 0 ]; then
         print_error "推送失败，请检查以下可能的问题："
         print_message "1. 网络连接是否正常"
         print_message "2. GitHub 是否可访问"
@@ -132,6 +180,8 @@ push_changes() {
         print_message "   git remote set-url origin git@github.com:liangbule/admin-dashboard.git"
         print_message "5. 使用个人访问令牌："
         print_message "   git remote set-url origin https://<token>@github.com/liangbule/admin-dashboard.git"
+        print_message "6. 配置 Git 使用 HTTP/1.1："
+        print_message "   git config --global http.version HTTP/1.1"
         exit 1
     fi
 }
@@ -139,6 +189,12 @@ push_changes() {
 # 主函数
 main() {
     print_step "开始代码提交流程..."
+    
+    # 检查网络连接
+    if ! check_network; then
+        print_error "网络连接检查失败，请检查网络设置"
+        exit 1
+    fi
     
     # 检查 Git 环境
     check_git
