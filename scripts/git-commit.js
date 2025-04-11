@@ -38,21 +38,17 @@ function execGitCommand(command, options = {}) {
     return result;
   } catch (error) {
     console.error(error);
-    throw error; // 抛出错误而不是返回 null
+    throw error;
   }
 }
 
 // 检查 Git 是否安装
 function checkGit() {
+  printStep('检查 Git 环境...');
   try {
     const version = execGitCommand('git --version', { stdio: 'pipe' })?.toString().trim();
     if (!version) {
-      printError('Git 未安装，请先安装 Git');
-      printMessage('安装方法：');
-      printMessage('1. Windows: 下载 Git for Windows');
-      printMessage('2. macOS: brew install git');
-      printMessage('3. Ubuntu: sudo apt-get install git');
-      process.exit(1);
+      throw new Error('Git 未安装');
     }
     printMessage(version);
   } catch (error) {
@@ -67,14 +63,9 @@ function checkGit() {
 
 // 检查是否在 Git 仓库中
 function checkGitRepo() {
+  printStep('检查 Git 仓库...');
   try {
-    // 使用 git status 命令检查，因为它会返回更详细的信息
-    const result = execGitCommand('git status', { stdio: 'pipe' });
-    if (!result) {
-      printError('当前目录不是 Git 仓库');
-      printMessage('请确保在正确的项目目录中运行此脚本');
-      process.exit(1);
-    }
+    execGitCommand('git status', { stdio: 'pipe' });
   } catch (error) {
     printError('当前目录不是 Git 仓库');
     printMessage('请确保在正确的项目目录中运行此脚本');
@@ -84,15 +75,13 @@ function checkGitRepo() {
 
 // 检查远程仓库配置
 function checkRemote() {
+  printStep('检查远程仓库配置...');
   try {
     const result = execGitCommand('git remote get-url origin', { stdio: 'pipe' })?.toString().trim();
     if (!result) {
-      printError('未配置远程仓库');
-      printMessage('请先配置远程仓库：');
-      printMessage('git remote add origin <repository-url>');
-      process.exit(1);
+      throw new Error('未配置远程仓库');
     }
-    printMessage(result);
+    printMessage(`远程仓库: ${result}`);
   } catch (error) {
     printError('未配置远程仓库');
     printMessage('请先配置远程仓库：');
@@ -115,6 +104,37 @@ function checkGitHubAuth() {
     }
   } catch (error) {
     printWarning('检查认证状态时出错');
+  }
+}
+
+// 检查并配置 Git 用户信息
+function checkGitUser() {
+  printStep('检查 Git 用户配置...');
+  try {
+    const email = execGitCommand('git config --get user.email', { stdio: 'pipe' })?.toString().trim();
+    const name = execGitCommand('git config --get user.name', { stdio: 'pipe' })?.toString().trim();
+
+    if (!email || !name) {
+      printWarning('未配置 Git 用户信息');
+      printMessage('正在配置默认用户信息...');
+      
+      // 设置默认用户信息
+      execGitCommand('git config --global user.email "admin@example.com"');
+      execGitCommand('git config --global user.name "Admin"');
+      
+      printMessage('已配置默认用户信息：');
+      printMessage('邮箱: admin@example.com');
+      printMessage('用户名: Admin');
+      printMessage('');
+      printMessage('如需修改，请使用以下命令：');
+      printMessage('git config --global user.email "your.email@example.com"');
+      printMessage('git config --global user.name "Your Name"');
+    } else {
+      printMessage(`当前用户: ${name} <${email}>`);
+    }
+  } catch (error) {
+    printError('检查用户配置时出错');
+    process.exit(1);
   }
 }
 
@@ -218,25 +238,7 @@ async function pushChanges() {
   while (retryCount < MAX_RETRIES && !success) {
     if (retryCount > 0) {
       printWarning(`第 ${retryCount} 次重试推送...`);
-      
-      // 检查网络连接
-      if (!checkNetwork()) {
-        printMessage('等待网络恢复...');
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-        continue;
-      }
-      
-      // 尝试使用不同的协议
-      const currentUrl = execGitCommand('git remote get-url origin', { stdio: 'pipe' })?.toString().trim();
-      if (currentUrl) {
-        if (currentUrl.startsWith('https://')) {
-          printMessage('切换到 SSH 协议...');
-          execGitCommand('git remote set-url origin git@github.com:liangbule/admin-dashboard.git');
-        } else {
-          printMessage('切换到 HTTPS 协议...');
-          execGitCommand('git remote set-url origin https://github.com/liangbule/admin-dashboard.git');
-        }
-      }
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
     }
     
     try {
@@ -248,7 +250,6 @@ async function pushChanges() {
       retryCount++;
       if (retryCount < MAX_RETRIES) {
         printWarning('推送失败，准备重试...');
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
       } else {
         printError('推送失败，请检查以下可能的问题：');
         printMessage('1. 网络连接是否正常');
@@ -272,37 +273,6 @@ async function pushChanges() {
         process.exit(1);
       }
     }
-  }
-}
-
-// 检查并配置 Git 用户信息
-function checkGitUser() {
-  printStep('检查 Git 用户配置...');
-  try {
-    const email = execGitCommand('git config --get user.email', { stdio: 'pipe' })?.toString().trim();
-    const name = execGitCommand('git config --get user.name', { stdio: 'pipe' })?.toString().trim();
-
-    if (!email || !name) {
-      printWarning('未配置 Git 用户信息');
-      printMessage('正在配置默认用户信息...');
-      
-      // 设置默认用户信息
-      execGitCommand('git config --global user.email "admin@example.com"');
-      execGitCommand('git config --global user.name "Admin"');
-      
-      printMessage('已配置默认用户信息：');
-      printMessage('邮箱: admin@example.com');
-      printMessage('用户名: Admin');
-      printMessage('');
-      printMessage('如需修改，请使用以下命令：');
-      printMessage('git config --global user.email "your.email@example.com"');
-      printMessage('git config --global user.name "Your Name"');
-    } else {
-      printMessage(`当前用户: ${name} <${email}>`);
-    }
-  } catch (error) {
-    printError('检查用户配置时出错');
-    process.exit(1);
   }
 }
 
