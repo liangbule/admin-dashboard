@@ -35,8 +35,11 @@ function printStep(message) {
 function execGitCommand(command, options = {}) {
   try {
     const result = execSync(command, { stdio: 'inherit', ...options });
-    return result || true; // 如果命令执行成功但无输出，返回 true
+    return result;
   } catch (error) {
+    if (error.status === 0) {
+      return true; // 命令执行成功但无输出
+    }
     console.error(error);
     return null;
   }
@@ -144,11 +147,8 @@ function addChanges() {
     execGitCommand('git config --global core.autocrlf true');
     
     // 添加所有更改
-    if (execGitCommand('git add .')) {
-      printMessage('所有更改已添加到暂存区');
-    } else {
-      throw new Error('添加更改失败');
-    }
+    execGitCommand('git add .');
+    printMessage('所有更改已添加到暂存区');
   } catch (error) {
     printError('添加更改失败');
     printMessage('可能的原因：');
