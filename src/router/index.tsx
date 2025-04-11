@@ -1,19 +1,17 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/store/hooks';
-import MainLayout from '@/layouts/MainLayout';
-import AuthLayout from '@/layouts/AuthLayout';
+import MainLayout from '@/layouts/MainLayout/MainLayout';
+import AuthLayout from '@/layouts/AuthLayout/AuthLayout';
 import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
 import UserList from '@/pages/User/List';
 import UserForm from '@/pages/User/Form';
-import BannerList from '@/pages/Banner/List';
-import BannerForm from '@/pages/Banner/Form';
-import TabList from '@/pages/Tab/List';
-import TabForm from '@/pages/Tab/Form';
 import TagList from '@/pages/Tag/List';
 import TagForm from '@/pages/Tag/Form';
 import FileList from '@/pages/File/List';
+import BannerList from '@/pages/Banner/List';
+import BannerForm from '@/pages/Banner/Form';
 import System from '@/pages/System';
 
 interface PrivateRouteProps {
@@ -23,7 +21,14 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const location = useLocation();
   const token = useAppSelector((state) => state.auth.token) || localStorage.getItem('admin_token');
+  const isLocalDebug = import.meta.env.VITE_APP_LOCAL_DEBUG === 'true';
 
+  // 如果是本地调试模式，直接放行
+  if (isLocalDebug) {
+    return <>{children}</>;
+  }
+
+  // 非本地调试模式，需要验证token
   if (!token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -33,6 +38,14 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
 const routes = [
   {
+    path: '/login',
+    element: (
+      <AuthLayout>
+        <Login />
+      </AuthLayout>
+    ),
+  },
+  {
     path: '/',
     element: (
       <PrivateRoute>
@@ -41,7 +54,7 @@ const routes = [
     ),
     children: [
       {
-        path: '',
+        index: true,
         element: <Navigate to="/dashboard" replace />,
       },
       {
@@ -52,7 +65,7 @@ const routes = [
         path: 'users',
         children: [
           {
-            path: '',
+            index: true,
             element: <UserList />,
           },
           {
@@ -66,44 +79,10 @@ const routes = [
         ],
       },
       {
-        path: 'banner',
-        children: [
-          {
-            path: '',
-            element: <BannerList />,
-          },
-          {
-            path: 'create',
-            element: <BannerForm />,
-          },
-          {
-            path: ':id/edit',
-            element: <BannerForm />,
-          },
-        ],
-      },
-      {
-        path: 'tab',
-        children: [
-          {
-            path: '',
-            element: <TabList />,
-          },
-          {
-            path: 'create',
-            element: <TabForm />,
-          },
-          {
-            path: ':id/edit',
-            element: <TabForm />,
-          },
-        ],
-      },
-      {
         path: 'tag',
         children: [
           {
-            path: '',
+            index: true,
             element: <TagList />,
           },
           {
@@ -117,10 +96,27 @@ const routes = [
         ],
       },
       {
+        path: 'banner',
+        children: [
+          {
+            index: true,
+            element: <BannerList />,
+          },
+          {
+            path: 'create',
+            element: <BannerForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <BannerForm />,
+          },
+        ],
+      },
+      {
         path: 'file',
         children: [
           {
-            path: '',
+            index: true,
             element: <FileList />,
           },
         ],
@@ -128,16 +124,6 @@ const routes = [
       {
         path: 'system',
         element: <System />,
-      },
-    ],
-  },
-  {
-    path: '/login',
-    element: <AuthLayout />,
-    children: [
-      {
-        path: '',
-        element: <Login />,
       },
     ],
   },

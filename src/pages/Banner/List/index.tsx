@@ -1,45 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Space, Image, Modal, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-
-interface BannerItem {
-  id: string;
-  title: string;
-  imageUrl: string;
-  link: string;
-  sort: number;
-  status: boolean;
-}
+import { getBanners, deleteBanner } from '@/services/banner';
+import type { Banner } from '@/types/banner';
 
 const BannerList: React.FC = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState<BannerItem[]>([
-    {
-      id: '1',
-      title: '示例轮播图1',
-      imageUrl: 'https://via.placeholder.com/800x400',
-      link: 'https://example.com',
-      sort: 1,
-      status: true,
-    },
-    {
-      id: '2',
-      title: '示例轮播图2',
-      imageUrl: 'https://via.placeholder.com/800x400',
-      link: 'https://example.com',
-      sort: 2,
-      status: true,
-    },
-  ]);
+  const [data, setData] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleDelete = (id: string) => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const banners = await getBanners();
+      setData(banners);
+    } catch (err) {
+      console.error('获取轮播图列表失败:', err);
+      message.error('获取轮播图列表失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleDelete = async (id: string) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除这个轮播图吗？',
-      onOk: () => {
-        setData(data.filter(item => item.id !== id));
-        message.success('删除成功');
+      onOk: async () => {
+        try {
+          await deleteBanner(id);
+          message.success('删除成功');
+          fetchData(); // 重新加载数据
+        } catch (err) {
+          console.error('删除失败:', err);
+          message.error('删除失败');
+        }
       },
     });
   };
@@ -52,8 +52,8 @@ const BannerList: React.FC = () => {
     },
     {
       title: '图片',
-      dataIndex: 'imageUrl',
-      key: 'imageUrl',
+      dataIndex: 'image',
+      key: 'image',
       render: (url: string) => (
         <Image
           src={url}
@@ -92,12 +92,12 @@ const BannerList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      render: (_: unknown, record: BannerItem) => (
+      render: (_: unknown, record: Banner) => (
         <Space size="middle">
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => navigate(`/banner/edit/${record.id}`, { replace: true })}
+            onClick={() => navigate(`/banner/${record.id}/edit`)}
           >
             编辑
           </Button>
@@ -120,7 +120,7 @@ const BannerList: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => navigate('/banner/edit')}
+          onClick={() => navigate('/banner/create')}
         >
           添加轮播图
         </Button>
@@ -129,6 +129,7 @@ const BannerList: React.FC = () => {
         columns={columns}
         dataSource={data}
         rowKey="id"
+        loading={loading}
         pagination={{
           total: data.length,
           pageSize: 10,

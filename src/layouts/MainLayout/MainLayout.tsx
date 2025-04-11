@@ -14,6 +14,7 @@ import {
   TagOutlined,
   AppstoreOutlined,
   PictureOutlined,
+  TagsOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import logo from '@/assets/logo.svg';
@@ -55,21 +56,46 @@ const MainLayout: React.FC = () => {
       key: '/users',
       icon: <UserOutlined />,
       label: '用户管理',
+      children: [
+        {
+          key: '/users',
+          label: '用户列表',
+        },
+        {
+          key: '/users/create',
+          label: '创建用户',
+        },
+      ],
+    },
+    {
+      key: '/tag',
+      icon: <TagsOutlined />,
+      label: '标签管理',
+      children: [
+        {
+          key: '/tag',
+          label: '标签列表',
+        },
+        {
+          key: '/tag/create',
+          label: '创建标签',
+        },
+      ],
     },
     {
       key: '/banner',
       icon: <PictureOutlined />,
-      label: '轮播图管理',
-    },
-    {
-      key: '/tab',
-      icon: <AppstoreOutlined />,
-      label: '标签页管理',
-    },
-    {
-      key: '/tag',
-      icon: <TagOutlined />,
-      label: '标签管理',
+      label: 'Banner管理',
+      children: [
+        {
+          key: '/banner',
+          label: 'Banner列表',
+        },
+        {
+          key: '/banner/create',
+          label: '创建Banner',
+        },
+      ],
     },
     {
       key: '/file',

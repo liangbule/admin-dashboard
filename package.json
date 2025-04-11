@@ -8,7 +8,9 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "git-commit": "bash -e scripts/git-commit.sh"
+    "git-commit": "node scripts/git-commit.js",
+    "git-commit:win": "node scripts/git-commit.js",
+    "git-commit:mac": "bash -e scripts/git-commit.sh"
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.0",

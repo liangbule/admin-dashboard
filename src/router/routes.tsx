@@ -1,28 +1,21 @@
 import { lazy, Suspense } from 'react';
 import { RouteObject, Navigate } from 'react-router-dom';
-import MainLayout from '../layouts/MainLayout';
-import Login from '../pages/Login';
-import Dashboard from '../pages/Dashboard';
-import SystemSettings from '../pages/System/Settings';
-import MarkdownEditor from '../pages/File/MarkdownEditor';
-import PrivateRoute from '../components/PrivateRoute';
-import TagManagement from '../pages/Tag';
-import UserManagement from '../pages/User';
-import BannerManagement from '../pages/Banner';
+import MainLayout from '@/layouts/MainLayout/MainLayout';
+import Login from '@/pages/Login';
+import Dashboard from '@/pages/Dashboard';
+import SystemSettings from '@/pages/System/Settings';
+import MarkdownEditor from '@/pages/File/MarkdownEditor';
+import PrivateRoute from '@/components/PrivateRoute';
 import { Spin } from 'antd';
 
 // 使用 lazy 加载的组件
-const TabList = lazy(() => import('../pages/Tab/List'));
-const TabCreate = lazy(() => import('../pages/Tab/Create'));
-const TabEdit = lazy(() => import('../pages/Tab/Edit'));
-const BannerList = lazy(() => import('../pages/Banner/List'));
-const BannerCreate = lazy(() => import('../pages/Banner/Create'));
-const BannerEdit = lazy(() => import('../pages/Banner/Edit'));
-const UserListPage = lazy(() => import('../pages/User/List'));
-const UserCreatePage = lazy(() => import('../pages/User/Create'));
-const UserEditPage = lazy(() => import('../pages/User/Edit'));
-const TagList = lazy(() => import('../pages/Tag/List'));
-const TagEdit = lazy(() => import('../pages/Tag/Edit'));
+const UserList = lazy(() => import('@/pages/User/List/index'));
+const UserForm = lazy(() => import('@/pages/User/Form/index'));
+const BannerList = lazy(() => import('@/pages/Banner/List'));
+const BannerCreate = lazy(() => import('@/pages/Banner/Create'));
+const BannerEdit = lazy(() => import('@/pages/Banner/Edit'));
+const TagList = lazy(() => import('@/pages/Tag/List'));
+const TagEdit = lazy(() => import('@/pages/Tag/Edit'));
 
 // 加载中组件
 const Loading = () => (
@@ -50,13 +43,16 @@ export const routes: RouteObject[] = [
       },
       {
         path: 'users',
-        element: <UserManagement />,
         children: [
           {
             index: true,
+            element: <Navigate to="list" replace />,
+          },
+          {
+            path: 'list',
             element: (
               <Suspense fallback={<Loading />}>
-                <UserListPage />
+                <UserList />
               </Suspense>
             ),
           },
@@ -64,15 +60,15 @@ export const routes: RouteObject[] = [
             path: 'create',
             element: (
               <Suspense fallback={<Loading />}>
-                <UserCreatePage />
+                <UserForm />
               </Suspense>
             ),
           },
           {
-            path: 'edit/:id',
+            path: ':id/edit',
             element: (
               <Suspense fallback={<Loading />}>
-                <UserEditPage />
+                <UserForm />
               </Suspense>
             ),
           },
@@ -101,40 +97,11 @@ export const routes: RouteObject[] = [
         ],
       },
       {
-        path: 'tab',
+        path: 'banner',
+        element: <Navigate to="/banner/list" replace />,
         children: [
           {
             path: 'list',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <TabList />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'create',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <TabCreate />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'edit/:id',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <TabEdit />
-              </Suspense>
-            ),
-          },
-        ],
-      },
-      {
-        path: 'banner',
-        element: <BannerManagement />,
-        children: [
-          {
-            index: true,
             element: (
               <Suspense fallback={<Loading />}>
                 <BannerList />
@@ -150,7 +117,7 @@ export const routes: RouteObject[] = [
             ),
           },
           {
-            path: 'edit/:id',
+            path: ':id/edit',
             element: (
               <Suspense fallback={<Loading />}>
                 <BannerEdit />
@@ -161,10 +128,10 @@ export const routes: RouteObject[] = [
       },
       {
         path: 'tag',
-        element: <TagManagement />,
+        element: <Navigate to="/tag/list" replace />,
         children: [
           {
-            index: true,
+            path: 'list',
             element: (
               <Suspense fallback={<Loading />}>
                 <TagList />
@@ -172,7 +139,15 @@ export const routes: RouteObject[] = [
             ),
           },
           {
-            path: 'edit/:id',
+            path: 'create',
+            element: (
+              <Suspense fallback={<Loading />}>
+                <TagEdit />
+              </Suspense>
+            ),
+          },
+          {
+            path: ':id/edit',
             element: (
               <Suspense fallback={<Loading />}>
                 <TagEdit />

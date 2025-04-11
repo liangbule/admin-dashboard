@@ -1,30 +1,22 @@
-import request from '@/utils/request';
-import { Banner, BannerFormData } from '@/types/banner';
+import { get, post, put, del } from '@/utils/request';
+import type { Banner, BannerFormData } from '@/types/banner';
 
-export async function getBanners(tabId?: string): Promise<Banner[]> {
-  return request(`/api/banners${tabId ? `?tabId=${tabId}` : ''}`);
+export async function getBanners(): Promise<Banner[]> {
+  return get('/api/banners');
 }
 
 export async function getBanner(id: string): Promise<Banner> {
-  return request(`/api/banners/${id}`);
+  return get(`/api/banners/${id}`);
 }
 
-export async function createBanner(data: BannerFormData & { tabId?: string }): Promise<Banner> {
-  return request('/api/banners', {
-    method: 'POST',
-    data,
-  });
+export async function createBanner(data: BannerFormData): Promise<Banner> {
+  return post('/api/banners', data);
 }
 
 export async function updateBanner(id: string, data: BannerFormData): Promise<Banner> {
-  return request(`/api/banners/${id}`, {
-    method: 'PUT',
-    data,
-  });
+  return put(`/api/banners/${id}`, data);
 }
 
 export async function deleteBanner(id: string): Promise<void> {
-  return request(`/api/banners/${id}`, {
-    method: 'DELETE',
-  });
+  return del(`/api/banners/${id}`);
 } 

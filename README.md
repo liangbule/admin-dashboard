@@ -23,14 +23,11 @@ src/
 │   ├── MainLayout.tsx    # 主布局
 │   └── AuthLayout.tsx    # 认证布局
 ├── pages/           # 页面组件
-│   ├── Banner/      # 轮播图管理
-│   ├── Dashboard/   # 仪表盘
-│   ├── File/        # 文件管理
-│   ├── Login/       # 登录页
-│   ├── System/      # 系统设置
-│   ├── Tab/         # 标签页管理
-│   ├── Tag/         # 标签管理
-│   └── User/        # 用户管理
+│   ├── User/          # 用户管理
+│   ├── Tag/           # 标签管理
+│   ├── Banner/        # Banner管理
+│   ├── File/          # 文件管理
+│   └── System/        # 系统设置
 ├── router/          # 路由配置
 │   ├── index.tsx    # 路由主文件
 │   └── routes.tsx   # 路由配置
@@ -106,9 +103,8 @@ yarn lint
   children: [
     { path: 'dashboard', element: <Dashboard /> },
     { path: 'users/*', element: <UserManagement /> },
-    { path: 'banner/*', element: <BannerManagement /> },
-    { path: 'tab/*', element: <TabManagement /> },
     { path: 'tag/*', element: <TagManagement /> },
+    { path: 'banner/*', element: <BannerManagement /> },
     { path: 'file/*', element: <FileManagement /> },
     { path: 'system/*', element: <SystemSettings /> },
   ]
