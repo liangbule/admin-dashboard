@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, message, Input, Space } from 'antd';
+import { Card, Button, message, Space } from 'antd';
 import { SaveOutlined, FileOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-
-const { TextArea } = Input;
+import MarkdownEditor from './MarkdownEditor';
 
 interface FileEditorProps {
   filePath?: string;
@@ -17,19 +15,15 @@ interface FileResponse {
 const FileEditor: React.FC<FileEditorProps> = ({ filePath }) => {
   const [content, setContent] = useState('');
   const [fileName, setFileName] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (filePath) {
-      // 模拟从服务器获取文件内容
       fetchFileContent(filePath);
     }
   }, [filePath]);
 
   const fetchFileContent = async (path: string) => {
     try {
-      // 这里应该是实际的API调用
-      // 为了演示，我们使用模拟数据
       const response = await new Promise<FileResponse>((resolve) => {
         setTimeout(() => {
           resolve({
@@ -48,8 +42,6 @@ const FileEditor: React.FC<FileEditorProps> = ({ filePath }) => {
 
   const handleSave = async () => {
     try {
-      // 这里应该是实际的API调用
-      // 为了演示，我们使用模拟数据
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve(true);
@@ -60,10 +52,6 @@ const FileEditor: React.FC<FileEditorProps> = ({ filePath }) => {
     } catch (err) {
       message.error('文件保存失败');
     }
-  };
-
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
   };
 
   return (
@@ -84,13 +72,7 @@ const FileEditor: React.FC<FileEditorProps> = ({ filePath }) => {
         </Button>
       }
     >
-      <TextArea
-        value={content}
-        onChange={handleContentChange}
-        placeholder="请输入文件内容"
-        autoSize={{ minRows: 20, maxRows: 20 }}
-        style={{ fontFamily: 'monospace' }}
-      />
+      <MarkdownEditor content={content} onChange={setContent} />
     </Card>
   );
 };

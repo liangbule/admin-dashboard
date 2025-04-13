@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Form, Input, Button, message, Switch } from 'antd';
 
-const System: React.FC = () => {
-  const [form] = Form.useForm();
+interface SystemConfig {
+  siteName: string;
+  siteDescription: string;
+  enableRegistration: boolean;
+  enableComment: boolean;
+}
 
-  const handleSubmit = async (values: any) => {
+const System: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm<SystemConfig>();
+
+  const handleSubmit = async (_values: SystemConfig) => {
     try {
+      setLoading(true);
       // 这里应该是实际的API调用
-      console.log('表单数据:', values);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      message.success('更新成功');
-    } catch (err) {
-      console.error('更新失败:', err);
-      message.error('更新失败');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      message.success('保存成功');
+    } catch (error) {
+      message.error('保存失败');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -24,8 +32,8 @@ const System: React.FC = () => {
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          siteName: '后台管理系统',
-          siteDescription: '一个现代化的后台管理系统',
+          siteName: '管理后台',
+          siteDescription: '一个简单的管理后台',
           enableRegistration: true,
           enableComment: true,
         }}
@@ -35,17 +43,15 @@ const System: React.FC = () => {
           label="站点名称"
           rules={[{ required: true, message: '请输入站点名称' }]}
         >
-          <Input placeholder="请输入站点名称" />
+          <Input />
         </Form.Item>
-
         <Form.Item
           name="siteDescription"
           label="站点描述"
           rules={[{ required: true, message: '请输入站点描述' }]}
         >
-          <Input.TextArea placeholder="请输入站点描述" />
+          <Input.TextArea />
         </Form.Item>
-
         <Form.Item
           name="enableRegistration"
           label="允许注册"
@@ -53,7 +59,6 @@ const System: React.FC = () => {
         >
           <Switch />
         </Form.Item>
-
         <Form.Item
           name="enableComment"
           label="允许评论"
@@ -61,10 +66,9 @@ const System: React.FC = () => {
         >
           <Switch />
         </Form.Item>
-
         <Form.Item>
-          <Button type="primary" htmlType="submit">
-            保存设置
+          <Button type="primary" htmlType="submit" loading={loading}>
+            保存
           </Button>
         </Form.Item>
       </Form>

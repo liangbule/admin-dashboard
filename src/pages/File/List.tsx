@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Table, Button, Upload, message } from 'antd';
+import { Card, Table, Button, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 const FileList: React.FC = () => {

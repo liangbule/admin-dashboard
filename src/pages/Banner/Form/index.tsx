@@ -1,39 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Form, Input, Button, message, Upload, InputNumber, Switch } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
 import { createBanner, updateBanner, getBanner } from '@/services/banner';
 import type { BannerFormData } from '@/types/banner';
 
-const BannerForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
+interface BannerFormProps {
+  isEdit?: boolean;
+}
+
+const BannerForm: React.FC<BannerFormProps> = ({ isEdit = false }) => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const isEdit = !!id;
-
-  useEffect(() => {
-    if (isEdit) {
-      fetchBannerData();
-    }
-  }, [id]);
-
-  const fetchBannerData = async () => {
+  const fetchBannerData = useCallback(async () => {
+    if (!isEdit || !id) return;
+    
+    setLoading(true);
     try {
-      setLoading(true);
       const banner = await getBanner(id!);
       form.setFieldsValue(banner);
-    } catch (err) {
-      console.error('获取轮播图数据失败:', err);
-      message.error('获取轮播图数据失败');
+    } catch (error) {
+      message.error('获取横幅数据失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [form, id, isEdit]);
+
+  useEffect(() => {
+    fetchBannerData();
+  }, [fetchBannerData]);
 
   const handleSubmit = async (values: BannerFormData) => {
+    setLoading(true);
     try {
       setSubmitting(true);
       if (isEdit) {
@@ -44,11 +46,11 @@ const BannerForm: React.FC = () => {
         message.success('创建成功');
       }
       navigate('/banner');
-    } catch (err) {
-      console.error('操作失败:', err);
-      message.error('操作失败');
+    } catch (error) {
+      message.error(`${isEdit ? '更新' : '创建'}失败`);
     } finally {
       setSubmitting(false);
+      setLoading(false);
     }
   };
 

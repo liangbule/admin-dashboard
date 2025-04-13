@@ -209,20 +209,12 @@ function commitChanges(message) {
 }
 
 // 检查网络连接
-function checkNetwork() {
-  printStep('检查网络连接...');
+function _checkNetwork() {
   try {
-    const result = execGitCommand('ping -n 1 github.com', { stdio: 'pipe' });
-    if (!result) {
-      printWarning('无法连接到 GitHub，请检查网络连接');
-      printMessage('1. 检查网络连接是否正常');
-      printMessage('2. 检查是否可以使用代理');
-      printMessage('3. 尝试使用其他网络');
-      return false;
-    }
+    execGitCommand('ping -n 1 github.com');
     return true;
   } catch (error) {
-    printWarning('网络检查失败');
+    printError('网络连接失败，请检查网络设置');
     return false;
   }
 }
@@ -278,38 +270,34 @@ async function pushChanges() {
 
 // 主函数
 async function main() {
-  printStep('开始代码提交流程...');
+  printStep('开始提交流程...');
   
-  // 检查 Git 环境
-  checkGit();
-  checkGitRepo();
-  checkRemote();
-  checkGitHubAuth();
-  checkGitUser();
-  
-  // 获取提交信息
-  const commitMessage = process.argv[2];
-  if (!commitMessage) {
-    printError('缺少提交信息参数');
-    printMessage('使用方法: npm run git-commit -- "提交信息"');
-    printMessage('例如: npm run git-commit -- "feat(user): 添加用户管理功能"');
+  try {
+    // 检查 Git 环境
+    checkGit();
+    checkGitRepo();
+    checkRemote();
+    checkGitHubAuth();
+    checkGitUser();
+    
+    // 检查工作区变更
+    checkChanges();
+
+    // 添加变更
+    addChanges();
+
+    // 提交变更
+    commitChanges();
+
+    // 推送到远程
+    await pushChanges();
+
+    printMessage('提交流程完成！');
+  } catch (error) {
+    printError('提交过程中发生错误：');
+    console.error(error);
     process.exit(1);
   }
-
-  // 检查是否有未提交的更改
-  checkChanges();
-
-  // 添加更改
-  addChanges();
-
-  // 提交更改到本地
-  commitChanges(commitMessage);
-
-  // 推送到远程仓库
-  await pushChanges();
-
-  printMessage('代码提交流程完成！');
-  printMessage('可以在 GitHub 上查看提交记录');
 }
 
 // 执行主函数

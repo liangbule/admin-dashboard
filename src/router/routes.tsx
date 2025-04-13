@@ -1,40 +1,28 @@
-import { lazy, Suspense } from 'react';
-import { RouteObject, Navigate } from 'react-router-dom';
+import { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
 import Login from '@/pages/Login';
-import Dashboard from '@/pages/Dashboard';
-import SystemSettings from '@/pages/System/Settings';
-import MarkdownEditor from '@/pages/File/MarkdownEditor';
 import PrivateRoute from '@/components/PrivateRoute';
-import { Spin } from 'antd';
 
-// 使用 lazy 加载的组件
-const UserList = lazy(() => import('@/pages/User/List/index'));
-const UserForm = lazy(() => import('@/pages/User/Form/index'));
-const BannerList = lazy(() => import('@/pages/Banner/List'));
-const BannerCreate = lazy(() => import('@/pages/Banner/Create'));
-const BannerEdit = lazy(() => import('@/pages/Banner/Edit'));
+// 懒加载组件
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const UserList = lazy(() => import('@/pages/User/List'));
+const UserForm = lazy(() => import('@/pages/User/Form'));
 const TagList = lazy(() => import('@/pages/Tag/List'));
-const TagEdit = lazy(() => import('@/pages/Tag/Edit'));
+const TagForm = lazy(() => import('@/pages/Tag/Form'));
+const FileList = lazy(() => import('@/pages/File/List'));
+const FileEditor = lazy(() => import('@/pages/File/Editor'));
+const BannerList = lazy(() => import('@/pages/Banner/List'));
+const BannerForm = lazy(() => import('@/pages/Banner/Form'));
+const System = lazy(() => import('@/pages/System'));
 
-// 加载中组件
-const Loading = () => (
-  <div style={{ padding: '50px', textAlign: 'center' }}>
-    <Spin size="large" />
-  </div>
-);
-
-export const routes: RouteObject[] = [
+export const routes = [
   {
     path: '/',
-    element: (
-      <PrivateRoute>
-        <MainLayout />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><MainLayout /></PrivateRoute>,
     children: [
       {
-        index: true,
+        path: '',
         element: <Navigate to="/dashboard" replace />,
       },
       {
@@ -45,116 +33,69 @@ export const routes: RouteObject[] = [
         path: 'users',
         children: [
           {
-            index: true,
-            element: <Navigate to="list" replace />,
-          },
-          {
-            path: 'list',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <UserList />
-              </Suspense>
-            ),
+            path: '',
+            element: <UserList />,
           },
           {
             path: 'create',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <UserForm />
-              </Suspense>
-            ),
+            element: <UserForm />,
           },
           {
-            path: ':id/edit',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <UserForm />
-              </Suspense>
-            ),
+            path: 'edit/:id',
+            element: <UserForm />,
           },
         ],
       },
       {
-        path: 'file',
+        path: 'tags',
         children: [
           {
-            path: 'edit',
-            element: <MarkdownEditor />,
+            path: '',
+            element: <TagList />,
           },
           {
-            path: 'edit/:filePath',
-            element: <MarkdownEditor />,
+            path: 'create',
+            element: <TagForm />,
+          },
+          {
+            path: 'edit/:id',
+            element: <TagForm />,
+          },
+        ],
+      },
+      {
+        path: 'files',
+        children: [
+          {
+            path: '',
+            element: <FileList />,
+          },
+          {
+            path: 'editor',
+            element: <FileEditor />,
+          },
+        ],
+      },
+      {
+        path: 'banners',
+        children: [
+          {
+            path: '',
+            element: <BannerList />,
+          },
+          {
+            path: 'create',
+            element: <BannerForm />,
+          },
+          {
+            path: 'edit/:id',
+            element: <BannerForm />,
           },
         ],
       },
       {
         path: 'system',
-        children: [
-          {
-            path: 'settings',
-            element: <SystemSettings />,
-          },
-        ],
-      },
-      {
-        path: 'banner',
-        element: <Navigate to="/banner/list" replace />,
-        children: [
-          {
-            path: 'list',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <BannerList />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'create',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <BannerCreate />
-              </Suspense>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <BannerEdit />
-              </Suspense>
-            ),
-          },
-        ],
-      },
-      {
-        path: 'tag',
-        element: <Navigate to="/tag/list" replace />,
-        children: [
-          {
-            path: 'list',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <TagList />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'create',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <TagEdit />
-              </Suspense>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <Suspense fallback={<Loading />}>
-                <TagEdit />
-              </Suspense>
-            ),
-          },
-        ],
+        element: <System />,
       },
     ],
   },
@@ -164,6 +105,6 @@ export const routes: RouteObject[] = [
   },
   {
     path: '*',
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/" replace />,
   },
 ]; 

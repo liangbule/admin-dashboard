@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, createBrowserRouter, RouteObject } from 'react-router-dom';
 import { useAppSelector } from '@/store/hooks';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
 import AuthLayout from '@/layouts/AuthLayout/AuthLayout';
@@ -23,12 +23,10 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const token = useAppSelector((state) => state.auth.token) || localStorage.getItem('admin_token');
   const isLocalDebug = import.meta.env.VITE_APP_LOCAL_DEBUG === 'true';
 
-  // 如果是本地调试模式，直接放行
   if (isLocalDebug) {
     return <>{children}</>;
   }
 
-  // 非本地调试模式，需要验证token
   if (!token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -36,7 +34,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-const routes = [
+// 定义应用的路由配置
+const appRoutes: RouteObject[] = [
   {
     path: '/login',
     element: (
@@ -129,4 +128,4 @@ const routes = [
   },
 ];
 
-export default routes; 
+export const router = createBrowserRouter(appRoutes); 

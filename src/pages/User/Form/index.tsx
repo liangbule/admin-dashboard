@@ -6,12 +6,18 @@ import type { UserInfo } from '@/services/api';
 
 const { Option } = Select;
 
+interface UserFormData {
+  username: string;
+  password: string;
+  roles: string[];
+}
+
 const UserForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [_user, setUser] = useState<UserInfo | null>(null);
 
   // 如果是编辑模式，获取用户信息
   useEffect(() => {
@@ -39,7 +45,7 @@ const UserForm: React.FC = () => {
     }
   }, [id, form]);
 
-  const handleSubmit = async (values: any) => {
+  const _handleSubmit = async (values: UserFormData) => {
     try {
       setLoading(true);
       if (id) {
@@ -64,7 +70,7 @@ const UserForm: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
-        onFinish={handleSubmit}
+        onFinish={_handleSubmit}
         initialValues={{ roles: ['user'] }}
       >
         <Form.Item

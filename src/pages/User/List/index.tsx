@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Input, Modal, message, Popconfirm } from 'antd';
-import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Table, Button, Space, Input, message, Popconfirm } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { userApi } from '@/services/api';
 import type { UserInfo } from '@/services/api';
 
+interface TableRecord extends UserInfo {
+  key: string;
+}
+
 const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState<UserInfo[]>([]);
+  const [users, setUsers] = useState<TableRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
 
-  // 获取用户列表
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await userApi.getUsers({
@@ -23,32 +26,29 @@ const UserList: React.FC = () => {
         pageSize,
         keyword
       });
-      setUsers(response.list);
+      setUsers(response.list.map(user => ({ ...user, key: user.id.toString() })));
       setTotal(response.total);
     } catch (error) {
       message.error('获取用户列表失败');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, keyword]);
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, pageSize, keyword]);
+  }, [fetchUsers]);
 
-  // 处理搜索
   const handleSearch = (value: string) => {
     setKeyword(value);
     setCurrentPage(1);
   };
 
-  // 处理分页
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page);
     setPageSize(pageSize);
   };
 
-  // 处理删除用户
   const handleDelete = async (id: number) => {
     try {
       await userApi.deleteUser(id);
@@ -81,7 +81,7 @@ const UserList: React.FC = () => {
       title: '操作',
       key: 'action',
       width: 200,
-      render: (_: any, record: UserInfo) => (
+      render: (_: unknown, record: TableRecord) => (
         <Space size="middle">
           <Button
             type="link"

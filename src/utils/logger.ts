@@ -1,5 +1,3 @@
-import { message } from 'antd';
-
 // 日志级别
 export enum LogLevel {
   DEBUG = 'DEBUG',
@@ -10,10 +8,11 @@ export enum LogLevel {
 
 // 日志类型
 export enum LogType {
-  API = 'API',
-  AUTH = 'AUTH',
-  UI = 'UI',
-  SYSTEM = 'SYSTEM'
+  SYSTEM = 'system',
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info',
+  DEBUG = 'debug',
 }
 
 interface LogEntry {
@@ -21,7 +20,7 @@ interface LogEntry {
   level: LogLevel;
   type: LogType;
   message: string;
-  data?: any;
+  data?: unknown;
   stack?: string;
 }
 
@@ -39,12 +38,12 @@ class Logger {
     return Logger.instance;
   }
 
-  private formatMessage(level: LogLevel, type: LogType, message: string, data?: any): string {
+  private formatMessage(level: LogLevel, type: LogType, message: string, data?: unknown): string {
     const timestamp = new Date().toISOString();
     return `[${timestamp}] [${level}] [${type}] ${message} ${data ? JSON.stringify(data) : ''}`;
   }
 
-  private addLog(level: LogLevel, type: LogType, message: string, data?: any, stack?: string) {
+  private addLog(level: LogLevel, type: LogType, message: string, data?: unknown, stack?: string) {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -65,15 +64,15 @@ class Logger {
     console.log(this.formatMessage(level, type, message, data));
   }
 
-  public debug(type: LogType, message: string, data?: any) {
+  public debug(type: LogType, message: string, data?: unknown) {
     this.addLog(LogLevel.DEBUG, type, message, data);
   }
 
-  public info(type: LogType, message: string, data?: any) {
+  public info(type: LogType, message: string, data?: unknown) {
     this.addLog(LogLevel.INFO, type, message, data);
   }
 
-  public warn(type: LogType, message: string, data?: any) {
+  public warn(type: LogType, message: string, data?: unknown) {
     this.addLog(LogLevel.WARN, type, message, data);
   }
 

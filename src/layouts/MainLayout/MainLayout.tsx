@@ -11,8 +11,6 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
-  TagOutlined,
-  AppstoreOutlined,
   PictureOutlined,
   TagsOutlined,
 } from '@ant-design/icons';
